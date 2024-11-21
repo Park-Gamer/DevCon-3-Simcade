@@ -8,12 +8,17 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Range(0, 50)] float moveSpeed = 10f;
     [SerializeField, Range(0, 25)] float jumpSpeed = 5f;
 
+    public Vector3 gravityDirection = new Vector3(0, -1f, 0); // Default gravity direction 
+    [SerializeField, Range(0, 25)] float gravityStrength = 9f;  // The strength of the gravity force
+
     [SerializeField, Range(0, 5)] int maxAirJumps = 0; // The maximum number of air jumps
     public int jumpPhase = 0; // Tracks the current phase of jumping
 
     [SerializeField] float distanceToGround;
     public LayerMask groundLayer;
     bool onGround;
+
+    float targetAngle;
 
     private void Start()
     {
@@ -24,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
     {
         float inputX = Input.GetAxisRaw("Horizontal") * moveSpeed;
         float inputY = Input.GetAxisRaw("Vertical") * moveSpeed;
+        Vector3 direction = new Vector3(inputX, rb.velocity.y, inputY).normalized;
 
         rb.velocity = new Vector3(inputX, rb.velocity.y, inputY);
 
@@ -45,6 +51,16 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = new Vector3(rb.velocity.x, jumpSpeed, rb.velocity.z);
         }
 
-        transform.forward = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        if (direction.magnitude >= 0.1f)
+        {
+            targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            
+            transform.forward = direction * Time.deltaTime;
+        }
+
+        transform.rotation = Quaternion.Euler(0f, targetAngle, 0f);
+
+        Vector3 gravityForce = gravityDirection.normalized * gravityStrength;
+        rb.AddForce(gravityForce, ForceMode.Acceleration);
     }
 }
