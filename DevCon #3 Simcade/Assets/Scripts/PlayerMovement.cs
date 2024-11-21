@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     Rigidbody rb;
+    Animator anim;
+
     [SerializeField, Range(0, 50)] float moveSpeed = 10f;
     [SerializeField, Range(0, 25)] float jumpSpeed = 5f;
 
@@ -18,17 +20,30 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask groundLayer;
     bool onGround;
 
+    float isMoving;
     float targetAngle;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        anim = GetComponent<Animator>();
     }
 
     void Update()
     {
         float inputX = Input.GetAxisRaw("Horizontal") * moveSpeed;
         float inputY = Input.GetAxisRaw("Vertical") * moveSpeed;
+
+        if (Mathf.Abs(inputX) > 0.1f || Mathf.Abs(inputY) > 0.1f)
+        {
+            isMoving = 1f; // Player is moving
+        }
+        else
+        {
+            isMoving = 0f; // Player is not moving
+        }
+        anim.SetFloat("isMoving", isMoving);
+
         Vector3 direction = new Vector3(inputX, rb.velocity.y, inputY).normalized;
 
         rb.velocity = new Vector3(inputX, rb.velocity.y, inputY);
@@ -54,7 +69,6 @@ public class PlayerMovement : MonoBehaviour
         if (direction.magnitude >= 0.1f)
         {
             targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            
             transform.forward = direction * Time.deltaTime;
         }
 
