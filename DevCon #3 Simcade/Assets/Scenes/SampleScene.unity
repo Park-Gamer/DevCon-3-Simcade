@@ -355,12 +355,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a545926f302fb9442aa42fcaff5ebca3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 5
-  maxAcceleration: 20
-  maxAirAcceleration: 10
-  jumpHeight: 2
+  moveSpeed: 5
+  jumpSpeed: 4
   maxAirJumps: 1
-  maxGroundAngle: 25
+  jumpPhase: 0
+  distanceToGround: 1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!54 &18292531
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1006,7 +1008,7 @@ GameObject:
   - component: {fileID: 1867897412}
   - component: {fileID: 1867897411}
   - component: {fileID: 1867897410}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
