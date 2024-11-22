@@ -81,7 +81,7 @@ public class PlayerMovement : MonoBehaviour
                 transform.up = climbDirection * Time.deltaTime;
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) && isClimbing || Input.GetKeyDown(KeyCode.Space) && jumpPhase < maxAirJumps)
+            if (Input.GetKeyDown(KeyCode.Space) && isClimbing)
             {
                 jumpPhase += 1; // Tracks air jumps
                 Vector3 climbJumpForce = climbJumpDirection.normalized * climbingJumpForce;
@@ -90,6 +90,7 @@ public class PlayerMovement : MonoBehaviour
                 anim.SetBool("isJumping", true);
                 isJumping = true;
             }
+            jumpPhase = 0;
         }
 
         if (!isClimbing)
