@@ -50,7 +50,6 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(isClimbing);
         float inputX = Input.GetAxisRaw("Horizontal") * moveSpeed;
         float inputY = Input.GetAxisRaw("Vertical") * moveSpeed;
 
