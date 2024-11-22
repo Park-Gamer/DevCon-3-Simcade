@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -26,13 +27,23 @@ public class PlayerMovement : MonoBehaviour
     public Vector3 climbJumpDirection = new Vector3(0, 0, -1f); // Default gravity direction
     [SerializeField, Range(0, 100)] float climbingJumpForce = 5f;
     bool isClimbing;
+    bool canClimb;
     [SerializeField] float distanceToSurface;
     public LayerMask climbLayer;
+
+    [SerializeField, Range(0, 10)] float maxStamina = 10f;    // Maximum stamina value
+    public float currentStamina;       // Current stamina
+    [SerializeField, Range(0, 10)] float staminaDrainRate = 2f; // Rate at which stamina drains when in air
+    [SerializeField, Range(0, 10)] float staminaRegenRate = 5f; // Rate at which stamina refills when on the ground
+    public StaminaBar staminaBar;
 
     float targetAngle;
 
     private void Start()
     {
+        currentStamina = maxStamina;
+        staminaBar.SetMaxStamina(maxStamina);
+
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
     }
@@ -53,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         RaycastHit hitClimbable;
-        if (Physics.Raycast(transform.position, Vector3.forward, out hitClimbable, distanceToSurface, climbLayer) && Input.GetKey(KeyCode.LeftShift))
+        if (Physics.Raycast(transform.position, Vector3.forward, out hitClimbable, distanceToSurface, climbLayer) && Input.GetKey(KeyCode.LeftShift) && canClimb)
         {
             if (!isClimbing && hitClimbable.normal.y < 0.5f)
             {
@@ -91,6 +102,17 @@ public class PlayerMovement : MonoBehaviour
                 isJumping = true;
             }
             jumpPhase = 0;
+
+            if (currentStamina > 0)
+            {
+                currentStamina -= staminaDrainRate * Time.deltaTime;
+                staminaBar.SetStamina(currentStamina);
+            }
+            else if (currentStamina <= 0)
+            {
+                canClimb = false;
+                currentStamina = 0f;
+            }
         }
 
         if (!isClimbing)
@@ -108,6 +130,17 @@ public class PlayerMovement : MonoBehaviour
                 anim.SetBool("isJumping", false);
                 isJumping = false;
                 anim.SetBool("isFalling", false);
+
+                if (currentStamina < maxStamina)
+                {
+                    currentStamina += staminaRegenRate * Time.deltaTime;
+                    staminaBar.SetStamina(currentStamina);
+                }
+                else if (currentStamina >= maxStamina) 
+                {
+                    currentStamina = maxStamina;
+                    canClimb = true;
+                }
             }
             else
             {
