@@ -19,8 +19,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float distanceToGround;
     public LayerMask groundLayer;
     bool onGround;
+    bool isJumping;
 
-    float isMoving;
     float targetAngle;
 
     private void Start()
@@ -36,13 +36,12 @@ public class PlayerMovement : MonoBehaviour
 
         if (Mathf.Abs(inputX) > 0.1f || Mathf.Abs(inputY) > 0.1f)
         {
-            isMoving = 1f; // Player is moving
+            anim.SetBool("isMoving", true);
         }
         else
         {
-            isMoving = 0f; // Player is not moving
+            anim.SetBool("isMoving", false);
         }
-        anim.SetFloat("isMoving", isMoving);
 
         Vector3 direction = new Vector3(inputX, rb.velocity.y, inputY).normalized;
 
@@ -54,16 +53,28 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log("Ground detected");
             jumpPhase = 0;
             onGround = true;
+            anim.SetBool("isGrounded", true);
+            anim.SetBool("isJumping", false);
+            isJumping = false;
+            anim.SetBool("isFalling", false);
         }
         else
         {
+            anim.SetBool("isGrounded", false);
             onGround = false;
+
+            if ((isJumping && rb.velocity.y < 0) || rb.velocity.y < -2)
+            {
+                anim.SetBool("isFalling", true);
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && onGround || Input.GetKeyDown(KeyCode.Space) && jumpPhase < maxAirJumps)
         {
             jumpPhase += 1; // Tracks air jumps
             rb.velocity = new Vector3(rb.velocity.x, jumpSpeed, rb.velocity.z);
+            anim.SetBool("isJumping", true);
+            isJumping = true;
         }
 
         if (direction.magnitude >= 0.1f)
