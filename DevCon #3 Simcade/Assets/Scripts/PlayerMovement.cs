@@ -69,8 +69,6 @@ public class PlayerMovement : MonoBehaviour
 
         if (isClimbing)
         {
-            transform.rotation = Vector3.up;
-
             // Calculate climbing direction based on surface normal
             climbDirection = Vector3.up; // Assume climbing vertically up
 
