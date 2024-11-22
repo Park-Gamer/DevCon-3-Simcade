@@ -21,6 +21,14 @@ public class PlayerMovement : MonoBehaviour
     bool onGround;
     bool isJumping;
 
+    private Vector3 climbDirection;
+    [SerializeField, Range(0, 1)] float climbSpeed = 0.3f;
+    public Vector3 climbJumpDirection = new Vector3(0, 0, -1f); // Default gravity direction
+    [SerializeField, Range(0, 100)] float climbingJumpForce = 5f;
+    bool isClimbing;
+    [SerializeField] float distanceToSurface;
+    public LayerMask climbLayer;
+
     float targetAngle;
 
     private void Start()
@@ -31,6 +39,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(isClimbing);
         float inputX = Input.GetAxisRaw("Horizontal") * moveSpeed;
         float inputY = Input.GetAxisRaw("Vertical") * moveSpeed;
 
@@ -43,49 +52,93 @@ public class PlayerMovement : MonoBehaviour
             anim.SetBool("isMoving", false);
         }
 
-        Vector3 direction = new Vector3(inputX, rb.velocity.y, inputY).normalized;
-
-        rb.velocity = new Vector3(inputX, rb.velocity.y, inputY);
-
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, distanceToGround, groundLayer))
+        RaycastHit hitClimbable;
+        if (Physics.Raycast(transform.position, Vector3.forward, out hitClimbable, distanceToSurface, climbLayer) && Input.GetKey(KeyCode.LeftShift))
         {
-            Debug.Log("Ground detected");
-            jumpPhase = 0;
-            onGround = true;
-            anim.SetBool("isGrounded", true);
-            anim.SetBool("isJumping", false);
-            isJumping = false;
-            anim.SetBool("isFalling", false);
+            if (!isClimbing && hitClimbable.normal.y < 0.5f)
+            {
+                isClimbing = true;
+                anim.SetBool("isClimbing", true);
+            }
         }
         else
         {
-            anim.SetBool("isGrounded", false);
-            onGround = false;
+            isClimbing = false;
+            anim.SetBool("isClimbing", false);
+        }
 
-            if ((isJumping && rb.velocity.y < 0) || rb.velocity.y < -2)
+        if (isClimbing)
+        {
+            transform.rotation = Vector3.up;
+
+            // Calculate climbing direction based on surface normal
+            climbDirection = Vector3.up; // Assume climbing vertically up
+
+            // Apply climbing force based on input
+            rb.velocity = new Vector3(inputX * climbSpeed, inputY * climbSpeed, rb.velocity.z);
+
+            if (climbDirection.magnitude >= 0.1f)
             {
-                anim.SetBool("isFalling", true);
+                targetAngle = Mathf.Atan2(climbDirection.x, climbDirection.y) * Mathf.Rad2Deg;
+                transform.up = climbDirection * Time.deltaTime;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space) && isClimbing || Input.GetKeyDown(KeyCode.Space) && jumpPhase < maxAirJumps)
+            {
+                jumpPhase += 1; // Tracks air jumps
+                Vector3 climbJumpForce = climbJumpDirection.normalized * climbingJumpForce;
+                rb.AddForce(climbJumpForce, ForceMode.Impulse);
+
+                anim.SetBool("isJumping", true);
+                isJumping = true;
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && onGround || Input.GetKeyDown(KeyCode.Space) && jumpPhase < maxAirJumps)
+        if (!isClimbing)
         {
-            jumpPhase += 1; // Tracks air jumps
-            rb.velocity = new Vector3(rb.velocity.x, jumpSpeed, rb.velocity.z);
-            anim.SetBool("isJumping", true);
-            isJumping = true;
+            Vector3 direction = new Vector3(inputX, rb.velocity.y, inputY).normalized;
+            rb.velocity = new Vector3(inputX, rb.velocity.y, inputY);
+
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, Vector3.down, out hit, distanceToGround, groundLayer))
+            {
+                Debug.Log("Ground detected");
+                jumpPhase = 0;
+                onGround = true;
+                anim.SetBool("isGrounded", true);
+                anim.SetBool("isJumping", false);
+                isJumping = false;
+                anim.SetBool("isFalling", false);
+            }
+            else
+            {
+                anim.SetBool("isGrounded", false);
+                onGround = false;
+
+                if ((isJumping && rb.velocity.y < 0) || rb.velocity.y < -2)
+                {
+                    anim.SetBool("isFalling", true);
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.Space) && onGround || Input.GetKeyDown(KeyCode.Space) && jumpPhase < maxAirJumps)
+            {
+                jumpPhase += 1; // Tracks air jumps
+                rb.velocity = new Vector3(rb.velocity.x, jumpSpeed, rb.velocity.z);
+                anim.SetBool("isJumping", true);
+                isJumping = true;
+            }
+
+            if (direction.magnitude >= 0.1f)
+            {
+                targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+                transform.forward = direction * Time.deltaTime;
+            }
+
+            transform.rotation = Quaternion.Euler(0f, targetAngle, 0f);
+
+            Vector3 gravityForce = gravityDirection.normalized * gravityStrength;
+            rb.AddForce(gravityForce, ForceMode.Acceleration);
         }
-
-        if (direction.magnitude >= 0.1f)
-        {
-            targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            transform.forward = direction * Time.deltaTime;
-        }
-
-        transform.rotation = Quaternion.Euler(0f, targetAngle, 0f);
-
-        Vector3 gravityForce = gravityDirection.normalized * gravityStrength;
-        rb.AddForce(gravityForce, ForceMode.Acceleration);
     }
 }
