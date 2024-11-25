@@ -12,14 +12,13 @@ public class AcornCollection : MonoBehaviour
         GameObject manager = GameObject.FindGameObjectWithTag("Manager");
         GameManager gameManager = manager.GetComponent<GameManager>();
 
-        // Check if the player has collided with the acorn (assuming the player has a tag "Player").
-        if (other.CompareTag("Player"))
+        if (gameManager != null)
         {
-            // Collect the acorn by calling the method on the manager.
-            gameManager.CollectAcorn();
-
-            // Destroy the acorn after collection.
-            Destroy(gameObject);
+            if (other.CompareTag("Player"))
+            {
+                gameManager.CollectAcorn();
+                Destroy(gameObject);
+            }
         }
     }
 }

@@ -6,22 +6,20 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     // The total number of acorns collected.
-    private int acornCount = 0;
+    public int acornCount = 0;
 
-    // UI element to display the acorn count (optional).
     public TextMeshProUGUI acornCountText;
 
     private void Start()
     {
-        // Initialize acorn count display
         UpdateAcornCountUI();
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Player"))
         {
             CollectAcorn();
-
         }
     }
     public void CollectAcorn()
@@ -29,7 +27,15 @@ public class GameManager : MonoBehaviour
         // Increase the acorn count.
         acornCount++;
 
-        // Optionally update the UI or other game systems.
+        UpdateAcornCountUI();
+    }
+
+    public void ReduceAcorn()
+    {
+        if (acornCount != 0)
+        {
+            acornCount -= 1;
+        }
         UpdateAcornCountUI();
     }
 
