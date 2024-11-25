@@ -31,13 +31,19 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float distanceToSurface;
     public LayerMask climbLayer;
 
-    [SerializeField, Range(0, 10)] float maxStamina = 10f;    // Maximum stamina value
+    [SerializeField, Range(0, 20)] float maxStamina = 10f;    // Maximum stamina value
     public float currentStamina;       // Current stamina
     [SerializeField, Range(0, 10)] float staminaDrainRate = 2f; // Rate at which stamina drains when in air
     [SerializeField, Range(0, 10)] float staminaRegenRate = 5f; // Rate at which stamina refills when on the ground
     public StaminaBar staminaBar;
 
     float targetAngle;
+
+    public GameManager manager;
+    [SerializeField, Range(0, 0.5f)] float scaleX = 0.1f;
+    [SerializeField, Range(0, 0.5f)] float scaleY = 0.1f;
+    [SerializeField, Range(0, 0.5f)] float scaleZ = 0.1f;
+    [SerializeField, Range(0, 0.5f)] float scaleMass = 0.05f;
 
     private void Start()
     {
@@ -61,6 +67,8 @@ public class PlayerMovement : MonoBehaviour
         {
             anim.SetBool("isMoving", false);
         }
+
+        ScaleFactor();
 
         RaycastHit hitClimbable;
         if (Physics.Raycast(transform.position, Vector3.forward, out hitClimbable, distanceToSurface, climbLayer) && Input.GetKey(KeyCode.LeftShift) && canClimb)
@@ -170,6 +178,52 @@ public class PlayerMovement : MonoBehaviour
 
             Vector3 gravityForce = gravityDirection.normalized * gravityStrength;
             rb.AddForce(gravityForce, ForceMode.Acceleration);
+        }
+    }
+
+    void ScaleFactor()
+    {
+        int AcornAmount = manager.GetAcornCount();
+
+        // Scale each axis independently based on the scaleFactor
+        float xScale = 0.4f + (manager.acornCount * scaleX);
+        float yScale = 0.4f + (manager.acornCount * scaleY); 
+        float zScale = 0.4f + (manager.acornCount * scaleZ);
+
+        xScale = Mathf.Max(xScale, 0.4f);
+        yScale = Mathf.Max(yScale, 0.4f);
+        zScale = Mathf.Max(zScale, 0.4f);
+
+        if (manager.acornCount > 0)
+        {
+            transform.localScale = new Vector3(xScale, yScale, zScale);
+        }
+
+        if (manager.acornCount > 5) 
+        {
+            maxAirJumps = 0;
+        }
+        else
+        {
+            maxAirJumps = 1;
+        }
+
+        rb.mass = 0.4f + (manager.acornCount * scaleMass);
+
+        distanceToGround = 1f + (manager.acornCount * 0.2f);
+        distanceToSurface = 1f + (manager.acornCount * 0.2f);
+
+        moveSpeed = 7f - (manager.acornCount * 0.18f);
+        jumpSpeed = 9f - (manager.acornCount * 0.18f);
+
+        gravityStrength = 2f + (manager.acornCount * 0.05f);
+
+        staminaDrainRate = 2f + (manager.acornCount * 0.12f);
+        staminaRegenRate = 7f - (manager.acornCount * 0.3f);
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            manager.ReduceAcorn();
         }
     }
 }
