@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class AcornCollection : MonoBehaviour
 {
+    public GameObject pickupEffect;
+
     void OnTriggerEnter(Collider other)
     {
         GameObject manager = GameObject.FindGameObjectWithTag("Manager");
@@ -16,6 +18,7 @@ public class AcornCollection : MonoBehaviour
         {
             if (other.CompareTag("Player"))
             {
+                Instantiate(pickupEffect, transform.localPosition, Quaternion.identity);
                 gameManager.CollectAcorn();
                 Destroy(gameObject);
             }
