@@ -45,6 +45,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField, Range(0, 0.5f)] float scaleZ = 0.1f;
     [SerializeField, Range(0, 0.5f)] float scaleMass = 0.05f;
 
+    public GameObject acornPrefab; 
+    public Transform firingPoint; 
+    public float shootForce = 20f; 
+    public float lifetime = 5f;
+
     private void Start()
     {
         currentStamina = maxStamina;
@@ -69,6 +74,11 @@ public class PlayerMovement : MonoBehaviour
         }
 
         ScaleFactor();
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            FireProjectile();
+        }
 
         RaycastHit hitClimbable;
         if (Physics.Raycast(transform.position, Vector3.forward, out hitClimbable, distanceToSurface, climbLayer) && Input.GetKey(KeyCode.LeftShift) && canClimb)
@@ -220,10 +230,24 @@ public class PlayerMovement : MonoBehaviour
 
         staminaDrainRate = 2f + (manager.acornCount * 0.12f);
         staminaRegenRate = 7f - (manager.acornCount * 0.3f);
+    }
 
-        if (Input.GetKeyDown(KeyCode.C))
+    void FireProjectile()
+    {
+        if (manager.acornCount > 0)
         {
+            // Instantiate the projectile at the firing point
+            GameObject projectile = Instantiate(acornPrefab, firingPoint.position, firingPoint.rotation);
+
+            // Add force to the projectile to make it move forward
+            Rigidbody acornRigidBody = projectile.GetComponent<Rigidbody>();
+            if (acornRigidBody != null)
+            {
+                acornRigidBody.velocity = firingPoint.forward * shootForce; // Set the velocity to shoot forward
+            }
             manager.ReduceAcorn();
+            // Destroy the projectile after a certain amount of time if it doesn't hit anything
+            Destroy(projectile, lifetime);
         }
     }
 }
