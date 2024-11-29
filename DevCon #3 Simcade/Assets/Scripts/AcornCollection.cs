@@ -14,10 +14,12 @@ public class AcornCollection : MonoBehaviour
 
     private bool isCollected = false;
     public GameManager manager;
+    public AudioManager audioManager;
 
     private void Start()
     {
         manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<GameManager>();
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
 
         acornCollider = GetComponent<Collider>();
         acornMesh = GetComponent<MeshRenderer>();
@@ -43,6 +45,7 @@ public class AcornCollection : MonoBehaviour
         {
             if (other.CompareTag("Player"))
             {
+                AudioManager.instance.PlaySoundEffect("Eat");
                 Instantiate(pickupEffect, transform.localPosition, Quaternion.identity);
                 gameManager.CollectAcorn();
                 acornCollider.enabled = false;
