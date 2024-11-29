@@ -32,6 +32,6 @@ public class MainMenu : MonoBehaviour
     IEnumerator DelayForAudio() // Countdown till draw timer
     {
         yield return new WaitForSeconds(1f); 
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("MainGame");
     }
 }

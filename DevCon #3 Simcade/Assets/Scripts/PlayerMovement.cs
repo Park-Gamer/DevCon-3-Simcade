@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -140,7 +141,6 @@ public class PlayerMovement : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(transform.position, Vector3.down, out hit, distanceToGround, groundLayer))
             {
-                Debug.Log("Ground detected");
                 jumpPhase = 0;
                 onGround = true;
                 anim.SetBool("isGrounded", true);
@@ -196,20 +196,20 @@ public class PlayerMovement : MonoBehaviour
         int AcornAmount = manager.GetAcornCount();
 
         // Scale each axis independently based on the scaleFactor
-        float xScale = 0.4f + (manager.acornCount * scaleX);
-        float yScale = 0.4f + (manager.acornCount * scaleY); 
-        float zScale = 0.4f + (manager.acornCount * scaleZ);
+        float xScale = 0.4f + (AcornAmount * scaleX);
+        float yScale = 0.4f + (AcornAmount * scaleY); 
+        float zScale = 0.4f + (AcornAmount * scaleZ);
 
         xScale = Mathf.Max(xScale, 0.4f);
         yScale = Mathf.Max(yScale, 0.4f);
         zScale = Mathf.Max(zScale, 0.4f);
 
-        if (manager.acornCount > 0)
+        if (AcornAmount > 0)
         {
             transform.localScale = new Vector3(xScale, yScale, zScale);
         }
 
-        if (manager.acornCount > 5) 
+        if (AcornAmount > 5) 
         {
             maxAirJumps = 0;
         }
@@ -218,18 +218,22 @@ public class PlayerMovement : MonoBehaviour
             maxAirJumps = 1;
         }
 
-        rb.mass = 0.4f + (manager.acornCount * scaleMass);
+        rb.mass = 0.4f + (AcornAmount * scaleMass);
 
-        distanceToGround = 1f + (manager.acornCount * 0.2f);
-        distanceToSurface = 1f + (manager.acornCount * 0.2f);
+        distanceToGround = 1f + (AcornAmount * 0.2f);
+        distanceToSurface = 1f + (AcornAmount * 0.2f);
 
-        moveSpeed = 7f - (manager.acornCount * 0.18f);
-        jumpSpeed = 9f - (manager.acornCount * 0.18f);
+        moveSpeed = 7f - (AcornAmount * 0.18f);
+        jumpSpeed = 9f - (AcornAmount * 0.18f);
 
-        gravityStrength = 2f + (manager.acornCount * 0.05f);
+        gravityStrength = 2f + (AcornAmount * 0.05f);
 
-        staminaDrainRate = 2f + (manager.acornCount * 0.12f);
-        staminaRegenRate = 7f - (manager.acornCount * 0.3f);
+        staminaDrainRate = 2f + (AcornAmount * 0.12f);
+        staminaRegenRate = 7f - (AcornAmount * 0.3f);
+    }
+    public void ResetScale()
+    {
+        transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
     }
 
     void FireProjectile()
