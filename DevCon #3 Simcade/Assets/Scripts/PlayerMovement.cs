@@ -26,7 +26,6 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 climbDirection;
     [SerializeField, Range(0, 1)] float climbSpeed = 0.3f;
     public Vector3 climbJumpDirection = new Vector3(0, 0, -1f); // Default gravity direction
-    [SerializeField, Range(0, 100)] float climbingJumpForce = 5f;
     bool isClimbing;
     bool canClimb;
     [SerializeField] float distanceToSurface;
@@ -51,6 +50,8 @@ public class PlayerMovement : MonoBehaviour
     public float shootForce = 20f; 
     public float lifetime = 5f;
 
+    public AudioManager audioManager;
+
     private void Start()
     {
         currentStamina = maxStamina;
@@ -58,6 +59,8 @@ public class PlayerMovement : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
+
+        audioManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<AudioManager>();
     }
 
     void Update()
@@ -67,6 +70,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Mathf.Abs(inputX) > 0.1f || Mathf.Abs(inputY) > 0.1f)
         {
+            AudioManager.instance.PlaySoundEffect("FootSteps");
             anim.SetBool("isMoving", true);
         }
         else
@@ -110,15 +114,6 @@ public class PlayerMovement : MonoBehaviour
                 transform.up = climbDirection * Time.deltaTime;
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) && isClimbing)
-            {
-                jumpPhase += 1; // Tracks air jumps
-                Vector3 climbJumpForce = climbJumpDirection.normalized * climbingJumpForce;
-                rb.AddForce(climbJumpForce, ForceMode.Impulse);
-
-                anim.SetBool("isJumping", true);
-                isJumping = true;
-            }
             jumpPhase = 0;
 
             if (currentStamina > 0)
@@ -172,6 +167,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Space) && onGround || Input.GetKeyDown(KeyCode.Space) && jumpPhase < maxAirJumps)
             {
+                AudioManager.instance.PlaySoundEffect("Jump");
                 jumpPhase += 1; // Tracks air jumps
                 rb.velocity = new Vector3(rb.velocity.x, jumpSpeed, rb.velocity.z);
                 anim.SetBool("isJumping", true);
@@ -240,6 +236,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (manager.acornCount > 0)
         {
+            AudioManager.instance.PlaySoundEffect("Spit");
             // Instantiate the projectile at the firing point
             GameObject projectile = Instantiate(acornPrefab, firingPoint.position, firingPoint.rotation);
 
