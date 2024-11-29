@@ -14,14 +14,6 @@ public class GameManager : MonoBehaviour
     {
         UpdateAcornCountUI();
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Player"))
-        {
-            CollectAcorn();
-        }
-    }
     public void CollectAcorn()
     {
         // Increase the acorn count.
@@ -35,6 +27,18 @@ public class GameManager : MonoBehaviour
         if (acornCount != 0)
         {
             acornCount -= 1;
+        }
+        UpdateAcornCountUI();
+    }
+
+    public void ResetAcorn()
+    {
+        if (acornCount != 0)
+        {
+            while (acornCount != 0)
+            {
+                acornCount -= 1;
+            }
         }
         UpdateAcornCountUI();
     }
