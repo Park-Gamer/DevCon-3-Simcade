@@ -33,9 +33,9 @@ The game’s physics mechanics are inspired by real-world scaling laws. For exam
 
 # Resources
 
-<https://assetstore.unity.com/packages/3d/characters/animals/mammals/low-poly-mammal-squirrel-128985>
+<https://assetstore.unity.com/packages/3d/characters/animals/mammals/low-poly-mammal-squirrel-128985\>
 
-<https://assetstore.unity.com/packages/2d/textures-materials/4k-realistic-outdoor-materials-295565>
+<https://assetstore.unity.com/packages/2d/textures-materials/4k-realistic-outdoor-materials-295565\>
 
-<https://freesound.org/>
+<https://freesound.org/\>
 
